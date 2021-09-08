@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+
 
 def read_data(file: str) -> pd.DataFrame:
     """Get data from csv file.
@@ -9,32 +9,50 @@ def read_data(file: str) -> pd.DataFrame:
     Returns
         Dataframe with use columns.
     """
-    df = pd.read_csv(file, usecols=['lpep_pickup_datetime', 'lpep_dropoff_datetime', 'trip_distance'])
+    df = pd.read_csv(
+        file, usecols=["lpep_pickup_datetime", "lpep_dropoff_datetime", "trip_distance"]
+    )
 
     return df
 
 
 def operations(file: str) -> pd.DataFrame:
-    """
+    """Args: Calculate average month speed.
+            Calculate time of the pick up, speed of the drive and average speed in the month.
 
-    :param file:
-    :return:
+    Args:
+         file: name of the file
+    Returns:
+        Dataframe with important value.
+            df = ["lpep_pickup_datetime", "lpep_dropoff_datetime", "trip_distance", "time_lpep", "speed"]
     """
     df = read_data(file)
-    df['lpep_pickup_datetime'] = pd.to_datetime(df['lpep_pickup_datetime'])
-    df['lpep_dropoff_datetime'] = pd.to_datetime(df['lpep_dropoff_datetime'])
+    df["lpep_pickup_datetime"] = pd.to_datetime(df["lpep_pickup_datetime"])
+    df["lpep_dropoff_datetime"] = pd.to_datetime(df["lpep_dropoff_datetime"])
 
-    df['time_lpep'] = (df['lpep_dropoff_datetime'] - df['lpep_pickup_datetime']).dt.total_seconds() / 3600
-    df['speed'] = df['trip_distance'] / df['time_lpep']
-
-    df.at['Average', 'time_lpep'] = df['time_lpep'].sum()/len(df)
-    df.at['Average', 'trip_distance'] = df['trip_distance'].sum() / len(df)
-    df.at['Average', 'speed'] = df['trip_distance'].sum() / df['time_lpep'].sum()
+    df["time_lpep"] = (
+        df["lpep_dropoff_datetime"] - df["lpep_pickup_datetime"]
+    ).dt.total_seconds() / 3600
+    df["speed"] = df["trip_distance"] / df["time_lpep"]
 
     return df
 
 
-if __name__ == '__main__':
-    FILE = 'D:\studia\Semestr_6\Autonomiczne Systemy Ekspertyzy i Eksploracji Danych\Projekt_2\Dane\green_tripdata_2019-05.csv'
+def get_average_speed(file: str):
+    """Get average of the speed.
 
-    print(operations(FILE))
+    Args:
+        file: name of the file
+    Returns:
+        Average of the speed.
+    """
+    df = operations(file)
+    avg = df["trip_distance"].sum() / df["time_lpep"].sum()
+
+    return avg
+
+
+if __name__ == "__main__":
+    # FILE = 'D:\studia\Semestr_6\Autonomiczne Systemy Ekspertyzy i Eksploracji Danych\Projekt_2\Dane\green_tripdata_2019-05.csv'
+    FILEa = "/Users/konradbudukiewicz/Downloads/green_tripdata_2019-05.csv"
+    print(get_average_speed(FILEa))
