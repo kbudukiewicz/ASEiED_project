@@ -1,8 +1,5 @@
 import pandas as pd
 
-FILE = '/Users/konradbudukiewicz/Downloads/green_tripdata_2019-05.csv'
-
-
 def read_data(file: str) -> pd.DataFrame:
     """Get data from csv file.
 
@@ -31,4 +28,8 @@ def operations(file: str) -> pd.DataFrame:
 
     return df
 
-print(operations(FILE))
+
+if __name__ == '__main__':
+    FILE = '/Users/konradbudukiewicz/Downloads/green_tripdata_2019-05.csv'
+
+    print(operations(FILE))
