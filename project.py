@@ -31,5 +31,4 @@ def operations(file: str) -> pd.DataFrame:
 
     return df
 
-
 print(operations(FILE))
