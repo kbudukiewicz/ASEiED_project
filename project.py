@@ -16,7 +16,7 @@ def read_data(file: str) -> pd.DataFrame:
     return df
 
 
-def operations(file: str) -> pd.DataFrame:
+def prepare_df(file: str) -> pd.DataFrame:
     """Args: Calculate average month speed.
             Calculate time of the pick up, speed of the drive and average speed in the month.
 
@@ -46,7 +46,7 @@ def get_average_speed(file: str):
     Returns:
         Average of the speed.
     """
-    df = operations(file)
+    df = prepare_df(file)
     avg = df["trip_distance"].sum() / df["time_lpep"].sum()
 
     return avg
