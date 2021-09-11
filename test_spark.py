@@ -64,11 +64,22 @@ def average_speed(spark_session: SparkSession, bucket: str):
 
 if __name__ == "__main__":
 
-    spark = (
-        SparkSession.builder.appName("Python Spark SQL basic example")
-        .getOrCreate()
-    )
+    session =  SparkSession.builder.appName("Python Spark SQL basic example").getOrCreate()
+    sc = session.sparkContext
+    sc.setLogLevel('ERROR')
+    dataFrameReader = session.read
 
-    BUCKET = "s3://nyc-tlc/"
 
-    print(average_speed(spark_session=spark, bucket=BUCKET))
+    BUCKET = "s3://daneaseied/dane/green_tripdata_2020-05.csv"
+
+    responses = dataFrameReader.option("header", "true").csv(BUCKET)
+
+    print("WYNIK:")
+
+    responses.printSchema()
+
+
+
+    #data = get_data_s3(spark, bucket=BUCKET)
+
+    #print(average_speed(spark_session=spark, bucket=BUCKET))
