@@ -66,9 +66,9 @@ if __name__ == "__main__":
 
     spark = (
         SparkSession.builder.appName("Python Spark SQL basic example")
-        .config("spark.some.config.option", "some-value")
         .getOrCreate()
     )
 
-    BUCKET = "..."
+    BUCKET = "s3://nyc-tlc/"
+
     print(average_speed(spark_session=spark, bucket=BUCKET))
