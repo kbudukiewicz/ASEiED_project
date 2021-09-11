@@ -72,9 +72,6 @@ if __name__ == "__main__":
     session = SparkSession.builder.appName(
         "Python Spark SQL basic example"
     ).getOrCreate()
-    # file1 = "green_tripdata_2020-05.csv"
-    # sc = session.sparkContext
-    # sc.setLogLevel('ERROR')
 
     # for i in range(5,13,1):
     #     LIST_OF_FILES.append("green_tripdata_2019-0" + str(i) + ".csv")
