@@ -39,8 +39,7 @@ def operations_df(df):
 
     df = df.withColumn(
         "time_lpep",
-        (df["lpep_dropoff_datetime"] - df["lpep_pickup_datetime"]).total_seconds()
-        / 3600,
+        (df["lpep_dropoff_datetime"] - df["lpep_pickup_datetime"])
     )
     df = df.withColumn("speed", df["trip_distance"] / df["time_lpep"])
 
@@ -73,13 +72,15 @@ if __name__ == "__main__":
 
     data = dataFrameReader.option("header", "true").csv(BUCKET)
 
-    average = average_speed(data)
+    #average = average_speed(data)
 
-    print("WYNIK:", average)
-
-
+    #print("WYNIK:", average)
 
 
+
+    data.printSchema()
+
+    data.select("lpep_dropoff_datetime").show()
 
     #data = get_data_s3(spark, bucket=BUCKET)
 
