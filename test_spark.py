@@ -68,7 +68,7 @@ if __name__ == "__main__":
     sc.setLogLevel('ERROR')
     dataFrameReader = session.read
 
-    BUCKET = "s3://daneaseied/dane/green_tripdata_2020-05.csv"
+    BUCKET = "s3://nyc-tlc/trip data/green_tripdata_2020-05.csv"
 
     data = dataFrameReader.option("header", "true").csv(BUCKET)
 
