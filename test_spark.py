@@ -14,7 +14,11 @@ def get_data_s3(spark_session: SparkSession, bucket: str):
     Returns:
          Dataframe with data from AWS s3.
     """
-    df = spark_session.read.format('csv').options(header='true', inferSchema='true').load(bucket)
+    df = (
+        spark_session.read.format("csv")
+        .options(header="true", inferSchema="true")
+        .load(bucket)
+    )
     return df
 
 
@@ -33,7 +37,11 @@ def operations_df(spark_session: SparkSession, bucket: str):
     df.withColumn("timestamp", to_timestamp("lpep_pickup_datetime"))
     df.withColumn("timestamp", to_timestamp("lpep_dropoff_datetime"))
 
-    df = df.withColumn("time_lpep", (df["lpep_dropoff_datetime"] - df["lpep_pickup_datetime"]).total_seconds() / 3600)
+    df = df.withColumn(
+        "time_lpep",
+        (df["lpep_dropoff_datetime"] - df["lpep_pickup_datetime"]).total_seconds()
+        / 3600,
+    )
     df = df.withColumn("speed", df["trip_distance"] / df["time_lpep"])
 
     return df
@@ -55,11 +63,12 @@ def average_speed(spark_session: SparkSession, bucket: str):
 
 
 if __name__ == "__main__":
-    spark = SparkSession \
-        .builder \
-        .appName("Python Spark SQL basic example") \
-        .config("spark.some.config.option", "some-value") \
+
+    spark = (
+        SparkSession.builder.appName("Python Spark SQL basic example")
+        .config("spark.some.config.option", "some-value")
         .getOrCreate()
+    )
 
     BUCKET = "..."
     print(average_speed(spark_session=spark, bucket=BUCKET))
