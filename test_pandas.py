@@ -1,3 +1,6 @@
+"""
+Test program to load data from .csv and get the average speed of the month.
+"""
 import pandas as pd
 
 
@@ -27,6 +30,7 @@ def prepare_df(file: str) -> pd.DataFrame:
             df = ["lpep_pickup_datetime", "lpep_dropoff_datetime", "trip_distance", "time_lpep", "speed"]
     """
     df = read_data(file)
+
     df["lpep_pickup_datetime"] = pd.to_datetime(df["lpep_pickup_datetime"])
     df["lpep_dropoff_datetime"] = pd.to_datetime(df["lpep_dropoff_datetime"])
 
