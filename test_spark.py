@@ -3,7 +3,8 @@ Test program to load data from Bucket S3 and get the average speed of the month.
 """
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import to_timestamp
-import numpy as np
+from pyspark.sql.types import TimestampType
+
 
 def get_data_s3(spark_session: SparkSession, bucket: str):
     """Get data from S3 bucket.
@@ -30,16 +31,18 @@ def operations_df(spark_session: SparkSession, bucket: str):
     df = get_data_s3(spark_session=spark_session, bucket=bucket)
     df = df.select("lpep_pickup_datetime", "lpep_dropoff_datetime", "trip_distance")
 
-    df.withColumn("timestamp", to_timestamp(df["lpep_pickup_datetime"], "ss"))
-    df.withColumn("timestamp", to_timestamp(df["lpep_dropoff_datetime"], "ss"))
+    # df.withColumn("timestamp", to_timestamp(df["lpep_pickup_datetime"], "ss"))
+    # df.withColumn("timestamp", to_timestamp(df["lpep_dropoff_datetime"], "ss"))
+
+    df = joindf.withColumn("lpep_pickup_datetime", joindf["lpep_pickup_datetime_1"].cast(TimestampType()))
+    df = joindf.withColumn("lpep_dropoff_datetime", joindf["lpep_dropoff_datetime_1"].cast(TimestampType()))
 
     df = df.withColumn(
         "time_lpep",
         (
-            to_timestamp(df["lpep_dropoff_datetime"])
-            - to_timestamp(df["lpep_pickup_datetime"])
-        )
-        # (df["lpep_dropoff_datetime"] - df["lpep_pickup_datetime"]) / 3600
+            to_timestamp(df["lpep_dropoff_datetime_1"])
+            - to_timestamp(df["lpep_pickup_datetime_1"])
+        ) / 3600
     )
 
     df = df.withColumn("speed", float(df["trip_distance"]) / float(df["time_lpep"]))
@@ -63,7 +66,6 @@ def average_speed(spark_session: SparkSession, bucket: str):
 
 
 if __name__ == "__main__":
-    # LIST_OF_FILES = []
     BUCKET = "s3://nyc-tlc/trip data/"
     list_avg_speed = []
     speed_green = []
@@ -72,21 +74,6 @@ if __name__ == "__main__":
     session = SparkSession.builder.appName(
         "Python Spark SQL basic example"
     ).getOrCreate()
-
-    # for i in range(5,13,1):
-    #     LIST_OF_FILES.append("green_tripdata_2019-0" + str(i) + ".csv")
-    #     LIST_OF_FILES.append("yellow_tripdata_2019-0" + str(i) + ".csv")
-    #
-    # for i in range(1,6,1):
-    #     LIST_OF_FILES.append("green_tripdata_2020-0" + str(i) + ".csv")
-    #     LIST_OF_FILES.append("yellow_tripdata_2020-0" + str(i) + ".csv")
-    #
-    # for file in LIST_OF_FILES:
-    #     avg = average_speed(spark_session=session, bucket=(BUCKET+file))
-    #     list_avg_speed.append(avg)
-
-    print(list_avg_speed)
-
 
     for num in range(1,12,1): # range to get good csv file
         if num >= 5:
