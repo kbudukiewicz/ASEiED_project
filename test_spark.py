@@ -3,7 +3,7 @@ Test program to load data from Bucket S3 and get the average speed of the month.
 """
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import to_timestamp
-
+import numpy as np
 
 def get_data_s3(spark_session: SparkSession, bucket: str):
     """Get data from S3 bucket.
@@ -87,8 +87,9 @@ if __name__ == "__main__":
 
     print(list_avg_speed)
 
-    for num in range(1, 13, 1):  # range to get good csv file
-        if num == 6:
+
+    for num in range(1,12,1): # range to get good csv file
+        if num >= 5:
             speed_green.append(
                 average_speed(
                     spark_session=session,
@@ -101,16 +102,17 @@ if __name__ == "__main__":
                     bucket=f"{BUCKET}yellow_tripdata_2019-0{num-1}.csv",
                 )
             )
-        speed_green.append(
-            average_speed(
-                spark_session=session, bucket=f"{BUCKET}green_tripdata_2020-0{num}.csv"
+        else:
+            speed_green.append(
+                average_speed(
+                    spark_session=session, bucket=f"{BUCKET}green_tripdata_2020-0{num}.csv"
+                )
             )
-        )
-        speed_yellow.append(
-            average_speed(
-                spark_session=session, bucket=f"{BUCKET}yellow_tripdata_2020-0{num}.csv"
+            speed_yellow.append(
+                average_speed(
+                    spark_session=session, bucket=f"{BUCKET}yellow_tripdata_2020-0{num}.csv"
+                )
             )
-        )
 
     print(speed_green)
     print(speed_yellow)
