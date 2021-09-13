@@ -39,8 +39,8 @@ def operations_df(spark_session: SparkSession, bucket: str):
     df = df.withColumn(
         "time_lpep",
         (
-            to_timestamp(df["lpep_dropoff_datetime_1"])
-            - to_timestamp(df["lpep_pickup_datetime_1"])
+            (df["lpep_dropoff_datetime"])
+            - (df["lpep_pickup_datetime"])
         ) / 3600
     )
 
