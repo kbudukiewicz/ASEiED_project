@@ -18,47 +18,65 @@ def get_data_s3(spark_session: SparkSession, bucket: str):
     return df
 
 
-def operations_df(spark_session: SparkSession, bucket: str):
+def operations_df(
+    spark_session: SparkSession,
+    bucket: str,
+    pickup_col: str,
+    dropoff_col: str,
+    trip_col: str,
+):
     """Preparing dataframe to get average speed of the month.
 
     Args:
         spark_session: SparkSession
         bucket: name of the bucket in AWS S3
+        pickup_col: name of the pick up column
+        dropoff_col: name of the drop off column
+        trip_col: name of the trip column
     Returns:
         Dataframe with preparing data.
     """
     df = get_data_s3(spark_session=spark_session, bucket=bucket)
-    df = df.select("lpep_pickup_datetime", "lpep_dropoff_datetime", "trip_distance")
+    df = df.select(pickup_col, dropoff_col, trip_col)
 
-    # df.withColumn("lpep_pickup_datetime", df.lpep_pickup_datetime.cast(TimestampType()))
-    # df.withColumn("lpep_dropoff_datetime", df.lpep_dropoff_datetime.cast(TimestampType()))
+    df.withColumn(pickup_col, df.pickup_col.cast(TimestampType()))
+    df.withColumn(dropoff_col, df.dropoff_col.cast(TimestampType()))
 
-    # df = df.withColumn(
-    #     "time_lpep",
-    #     (
-    #         df["lpep_dropoff_datetime"]
-    #         - df["lpep_pickup_datetime"]
-    #     ) / 3600
-    # )
-    #
-    # df = df.withColumn("speed", df["trip_distance"] / df["time_lpep"])
+    df = df.withColumn("time_lpep", (df[dropoff_col] - df[pickup_col]) / 3600)
+
+    df = df.withColumn("speed", df[trip_col] / df["time_lpep"])
 
     return df
 
 
-def average_speed(spark_session: SparkSession, bucket: str):
+def average_speed(
+    spark_session: SparkSession,
+    bucket: str,
+    pickup_col: str,
+    dropoff_col: str,
+    trip_col: str,
+):
     """Get average speed of the month.
 
     Args:
         spark_session: SparkSession
         bucket: name of the bucket in AWS S3
+        pickup_col: name of the pick up column
+        dropoff_col: name of the drop off column
+        trip_col: name of the trip column
     Returns:
         Average speed of the month.
     """
-    d = operations_df(spark_session=spark_session, bucket=bucket)
-    # avg = d.agg({"trip_distance": "sum"}) / d.agg({"time_lpep": "sum"})
+    d = operations_df(
+        spark_session=spark_session,
+        bucket=bucket,
+        pickup_col=pickup_col,
+        dropoff_col=dropoff_col,
+        trip_col=trip_col,
+    )
+    avg = d.agg({trip_col: "sum"}) / d.agg({"time_lpep": "sum"})
 
-    return d
+    return avg
 
 
 if __name__ == "__main__":
@@ -71,29 +89,43 @@ if __name__ == "__main__":
         "Python Spark SQL basic example"
     ).getOrCreate()
 
-    for num in range(1,12,1): # range to get good csv file
-        if num >= 5:
+    for num in range(1, 14, 1):  # range to get good csv file
+        if num >= 6:
             speed_green.append(
                 average_speed(
                     spark_session=session,
                     bucket=f"{BUCKET}green_tripdata_2019-0{num-1}.csv",
+                    pickup_col="lpep_pickup_datetime",
+                    dropoff_col="lpep_dropoff_datetime",
+                    trip_col="trip_distance",
                 )
             )
             speed_yellow.append(
                 average_speed(
                     spark_session=session,
                     bucket=f"{BUCKET}yellow_tripdata_2019-0{num-1}.csv",
+                    pickup_col="",
+                    dropoff_col="",
+                    trip_col="trip_distance",
                 )
             )
         else:
             speed_green.append(
                 average_speed(
-                    spark_session=session, bucket=f"{BUCKET}green_tripdata_2020-0{num}.csv"
+                    spark_session=session,
+                    bucket=f"{BUCKET}green_tripdata_2020-0{num}.csv",
+                    pickup_col="lpep_pickup_datetime",
+                    dropoff_col="lpep_dropoff_datetime",
+                    trip_col="trip_distance",
                 )
             )
             speed_yellow.append(
                 average_speed(
-                    spark_session=session, bucket=f"{BUCKET}yellow_tripdata_2020-0{num}.csv"
+                    spark_session=session,
+                    bucket=f"{BUCKET}yellow_tripdata_2020-0{num}.csv",
+                    pickup_col="",
+                    dropoff_col="",
+                    trip_col="trip_distance",
                 )
             )
 
