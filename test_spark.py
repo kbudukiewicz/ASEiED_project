@@ -30,18 +30,18 @@ def operations_df(spark_session: SparkSession, bucket: str):
     df = get_data_s3(spark_session=spark_session, bucket=bucket)
     df = df.select("lpep_pickup_datetime", "lpep_dropoff_datetime", "trip_distance")
 
-    df.withColumn("lpep_pickup_datetime", df.lpep_pickup_datetime.cast(TimestampType()))
-    df.withColumn("lpep_dropoff_datetime", df.lpep_dropoff_datetime.cast(TimestampType()))
+    # df.withColumn("lpep_pickup_datetime", df.lpep_pickup_datetime.cast(TimestampType()))
+    # df.withColumn("lpep_dropoff_datetime", df.lpep_dropoff_datetime.cast(TimestampType()))
 
-    df = df.withColumn(
-        "time_lpep",
-        (
-            df["lpep_dropoff_datetime"]
-            - df["lpep_pickup_datetime"]
-        ) / 3600
-    )
-
-    df = df.withColumn("speed", df["trip_distance"] / df["time_lpep"])
+    # df = df.withColumn(
+    #     "time_lpep",
+    #     (
+    #         df["lpep_dropoff_datetime"]
+    #         - df["lpep_pickup_datetime"]
+    #     ) / 3600
+    # )
+    #
+    # df = df.withColumn("speed", df["trip_distance"] / df["time_lpep"])
 
     return df
 
@@ -56,7 +56,7 @@ def average_speed(spark_session: SparkSession, bucket: str):
         Average speed of the month.
     """
     d = operations_df(spark_session=spark_session, bucket=bucket)
-    avg = d.agg({"trip_distance": "sum"}) / d.agg({"time_lpep": "sum"})
+    # avg = d.agg({"trip_distance": "sum"}) / d.agg({"time_lpep": "sum"})
 
     return d
 
