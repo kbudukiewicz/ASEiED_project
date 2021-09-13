@@ -31,11 +31,10 @@ def operations_df(spark_session: SparkSession, bucket: str):
     df = get_data_s3(spark_session=spark_session, bucket=bucket)
     df = df.select("lpep_pickup_datetime", "lpep_dropoff_datetime", "trip_distance")
 
-    # df.withColumn("timestamp", to_timestamp(df["lpep_pickup_datetime"], "ss"))
-    # df.withColumn("timestamp", to_timestamp(df["lpep_dropoff_datetime"], "ss"))
+    df.withColumn("lpep_pickup_datetime", df.lpep_pickup_datetime.cast(TimestampType()))
+    df.withColumn("lpep_dropoff_datetime", df.lpep_dropoff_datetime.cast(TimestampType()))
 
-    df = joindf.withColumn("lpep_pickup_datetime", joindf["lpep_pickup_datetime_1"].cast(TimestampType()))
-    df = joindf.withColumn("lpep_dropoff_datetime", joindf["lpep_dropoff_datetime_1"].cast(TimestampType()))
+    print(df)
 
     df = df.withColumn(
         "time_lpep",
