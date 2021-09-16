@@ -39,8 +39,8 @@ def operations_df(
     df = get_data_s3(spark_session=spark_session, bucket=bucket)
     df = df.select(pickup_col, dropoff_col, trip_col)
 
-    df.withColumn(pickup_col, df.pickup_col.cast(TimestampType()))
-    df.withColumn(dropoff_col, df.dropoff_col.cast(TimestampType()))
+    df.withColumn(pickup_col, df[pickup_col].cast(TimestampType()))
+    df.withColumn(dropoff_col, df[dropoff_col].cast(TimestampType()))
 
     df = df.withColumn("time_lpep", (df[dropoff_col] - df[pickup_col]) / 3600)
 
