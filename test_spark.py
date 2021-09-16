@@ -103,8 +103,8 @@ if __name__ == "__main__":
             average_speed(
                 spark_session=session,
                 bucket=f"{BUCKET}yellow_tripdata_2019-0{num}.csv",
-                pickup_col="",
-                dropoff_col="",
+                pickup_col="tpep_pickup_datetime",
+                dropoff_col="tpep_dropoff_datetime",
                 trip_col="trip_distance",
             )
         )
@@ -123,8 +123,8 @@ if __name__ == "__main__":
             average_speed(
                 spark_session=session,
                 bucket=f"{BUCKET}yellow_tripdata_2020-0{num}.csv",
-                pickup_col="",
-                dropoff_col="",
+                pickup_col="tpep_pickup_datetime",
+                dropoff_col="tpep_dropoff_datetime",
                 trip_col="trip_distance",
             )
         )
