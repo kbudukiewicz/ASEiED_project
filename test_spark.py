@@ -81,7 +81,7 @@ def average_speed(
 
 if __name__ == "__main__":
     BUCKET = "s3://nyc-tlc/trip data/"
-    list_avg_speed = []
+
     speed_green = []
     speed_yellow = []
 
@@ -89,45 +89,45 @@ if __name__ == "__main__":
         "Python Spark SQL basic example"
     ).getOrCreate()
 
-    for num in range(1, 14, 1):  # range to get good csv file
-        if num >= 6:
-            speed_green.append(
-                average_speed(
-                    spark_session=session,
-                    bucket=f"{BUCKET}green_tripdata_2019-0{num-1}.csv",
-                    pickup_col="lpep_pickup_datetime",
-                    dropoff_col="lpep_dropoff_datetime",
-                    trip_col="trip_distance",
-                )
+    for num in range(6, 13, 1):
+        speed_green.append(
+            average_speed(
+                spark_session=session,
+                bucket=f"{BUCKET}green_tripdata_2019-0{num}.csv",
+                pickup_col="lpep_pickup_datetime",
+                dropoff_col="lpep_dropoff_datetime",
+                trip_col="trip_distance",
             )
-            speed_yellow.append(
-                average_speed(
-                    spark_session=session,
-                    bucket=f"{BUCKET}yellow_tripdata_2019-0{num-1}.csv",
-                    pickup_col="",
-                    dropoff_col="",
-                    trip_col="trip_distance",
-                )
+        )
+        speed_yellow.append(
+            average_speed(
+                spark_session=session,
+                bucket=f"{BUCKET}yellow_tripdata_2019-0{num}.csv",
+                pickup_col="",
+                dropoff_col="",
+                trip_col="trip_distance",
             )
-        else:
-            speed_green.append(
-                average_speed(
-                    spark_session=session,
-                    bucket=f"{BUCKET}green_tripdata_2020-0{num}.csv",
-                    pickup_col="lpep_pickup_datetime",
-                    dropoff_col="lpep_dropoff_datetime",
-                    trip_col="trip_distance",
-                )
+        )
+
+    for num in range(1, 7, 1):
+        speed_green.append(
+            average_speed(
+                spark_session=session,
+                bucket=f"{BUCKET}green_tripdata_2020-0{num}.csv",
+                pickup_col="lpep_pickup_datetime",
+                dropoff_col="lpep_dropoff_datetime",
+                trip_col="trip_distance",
             )
-            speed_yellow.append(
-                average_speed(
-                    spark_session=session,
-                    bucket=f"{BUCKET}yellow_tripdata_2020-0{num}.csv",
-                    pickup_col="",
-                    dropoff_col="",
-                    trip_col="trip_distance",
-                )
+        )
+        speed_yellow.append(
+            average_speed(
+                spark_session=session,
+                bucket=f"{BUCKET}yellow_tripdata_2020-0{num}.csv",
+                pickup_col="",
+                dropoff_col="",
+                trip_col="trip_distance",
             )
+        )
 
     print(speed_green)
     print(speed_yellow)
