@@ -49,8 +49,8 @@ def operations_df(
     #df.withColumn(pickup_col, df[pickup_col].cast(TimestampType()))
     #df.withColumn(dropoff_col, df[dropoff_col].cast(TimestampType()))
 
-    df = df.withColumn("lpep_pickup_datetime", to_timestamp("lpep_pickup_datetime", "d/M/y H:m:s"))
-    df = df.withColumn("lpep_dropoff_datetime", to_timestamp("lpep_dropoff_datetime", "d/M/y H:m:s"))
+    df = df.withColumn("lpep_pickup_datetime", to_timestamp("lpep_pickup_datetime", "Y-m-d H:M:S"))
+    df = df.withColumn("lpep_dropoff_datetime", to_timestamp("lpep_dropoff_datetime", "Y-m-d H:M:S"))
 
     #df = df.withColumn("time_lpep", (df[dropoff_col] - df[pickup_col]) / 3600)
     df = df.withColumn("time_lpep", unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime") / 3600)
@@ -59,6 +59,8 @@ def operations_df(
     #df = df.withColumn("trip_col", df[trip_col].cast(sql.types.FloatType))
 
     df = df.withColumn("speed", df[trip_col] / df["time_lpep"])
+
+    df.show()
 
     return df
 
@@ -166,4 +168,5 @@ if __name__ == "__main__":
     print("wynik:")
     print("#")
     print(speed_green)
+
     #print(speed_yellow)
