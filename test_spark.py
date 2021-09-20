@@ -1,6 +1,8 @@
 """
 Test program to load data from Bucket S3 and get the average speed of the month.
 """
+import pandas as pd
+from matplotlib import pyplot as plt
 from pyspark.sql import SparkSession
 from pyspark.sql.types import TimestampType
 
@@ -77,6 +79,17 @@ def average_speed(
     avg = d.agg({trip_col: "sum"}) / d.agg({"time_lpep": "sum"})
 
     return avg
+
+
+def plot(speed: list) -> None:
+    """Plot the graph with average speed.
+
+    Args:
+        speed: list of the average speed to plot
+    """
+    dates = pd.date_range("2019-05", "2020-05", freq="M").tolist()
+    plt.plot(speed, dates)
+    plt.show()
 
 
 if __name__ == "__main__":
