@@ -25,6 +25,7 @@ def operations_df(
     pickup_col: str,
     dropoff_col: str,
     trip_col: str,
+    time_lpep: str,
 ):
     """Preparing dataframe to get average speed of the month.
 
@@ -38,7 +39,7 @@ def operations_df(
         Dataframe with preparing data.
     """
     df = get_data_s3(spark_session=spark_session, bucket=bucket)
-    df = df.select(pickup_col, dropoff_col, trip_col)
+    df = df.select(pickup_col, dropoff_col, trip_col, time_lpep)
 
     #df.withColumn(pickup_col, df[pickup_col].cast(TimestampType()))
     #df.withColumn(dropoff_col, df[dropoff_col].cast(TimestampType()))
@@ -47,7 +48,8 @@ def operations_df(
     df = df.withColumn("lpep_dropoff_datetime", to_timestamp("lpep_dropoff_datetime", "d/M/y H:m:s"))
 
     #df = df.withColumn("time_lpep", (df[dropoff_col] - df[pickup_col]) / 3600)
-    df.withColumn("time_lpep", unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime") / 3600)
+    time_subtract = df.withColumn("time_lpep", unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime") / 3600)
+    #df.withColumn("time_lpep", unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime") / 3600)
 
     df = df.withColumn("speed", df[trip_col] / df["time_lpep"])
 
@@ -60,6 +62,7 @@ def average_speed(
     pickup_col: str,
     dropoff_col: str,
     trip_col: str,
+    time_lpep: str,
 ):
     """Get average speed of the month.
 
@@ -78,6 +81,7 @@ def average_speed(
         pickup_col=pickup_col,
         dropoff_col=dropoff_col,
         trip_col=trip_col,
+        time_lpep=time_lpep,
     )
     avg = d.agg({trip_col: "sum"}) / d.agg({"time_lpep": "sum"})
 
@@ -102,6 +106,7 @@ if __name__ == "__main__":
                 pickup_col="lpep_pickup_datetime",
                 dropoff_col="lpep_dropoff_datetime",
                 trip_col="trip_distance",
+                time_lpep="time_lpep",
             )
         )
         #speed_yellow.append(
@@ -122,6 +127,7 @@ if __name__ == "__main__":
                 pickup_col="lpep_pickup_datetime",
                 dropoff_col="lpep_dropoff_datetime",
                 trip_col="trip_distance",
+                time_lpep="time_lpep",
             )
         )
         #speed_yellow.append(
