@@ -9,6 +9,7 @@ from pyspark.sql.functions import to_timestamp
 from pyspark.sql.functions import unix_timestamp
 import pyspark.sql as sql
 import pyspark.sql.functions as psf
+from pyspark.sql.types import DoubleType
 
 
 def get_data_s3(spark_session: SparkSession, bucket: str):
@@ -49,18 +50,18 @@ def operations_df(
     #df.withColumn(pickup_col, df[pickup_col].cast(TimestampType()))
     #df.withColumn(dropoff_col, df[dropoff_col].cast(TimestampType()))
 
-    df = df.withColumn("lpep_pickup_datetime", to_timestamp("lpep_pickup_datetime", "Y-m-d H:M:S"))
-    df = df.withColumn("lpep_dropoff_datetime", to_timestamp("lpep_dropoff_datetime", "Y-m-d H:M:S"))
+    df = df.withColumn("lpep_pickup_datetime", to_timestamp("lpep_pickup_datetime", "yyyy-MM-dd HH:mm:ss"))
+    df = df.withColumn("lpep_dropoff_datetime", to_timestamp("lpep_dropoff_datetime", "yyyy-MM-dd HH:mm:ss"))
 
     #df = df.withColumn("time_lpep", (df[dropoff_col] - df[pickup_col]) / 3600)
-    df = df.withColumn("time_lpep", unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime") / 3600)
+    df = df.withColumn("time_lpep", (unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime")) / 3600)
     #df.withColumn("time_lpep", unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime") / 3600)
 
     #df = df.withColumn("trip_col", df[trip_col].cast(sql.types.FloatType))
 
-    df = df.withColumn("speed", df[trip_col] / df["time_lpep"])
+    df = df.withColumn(trip_col, df[trip_col].cast(DoubleType()))
 
-    df.show()
+    df = df.withColumn("speed", df[trip_col] / df["time_lpep"])
 
     return df
 
@@ -92,12 +93,17 @@ def average_speed(
         trip_col=trip_col,
         #time_lpep=time_lpep,
     )
+
+    d.show()
+    d.printSchema()
+
     #avg = d.agg({trip_col: "sum"}) / d.agg({"time_lpep": "sum"})
     #avg = d.agg(sum("trip_col").cast("long")).first.getLong(0) / d.agg(sum("time_lpep").cast("long")).first.getLong(0)
-    #avg = d.agg(sum("speed").cast("long")).first.getLong(0)
+    #avg = d.agg(sum("speed"))
     #avg = d.agg(sum("time_lpep").cast("long")).first.getLong(0)
-    #avg = d.agg(sum("trip_col")).first.get(0)
-    avg = 0
+    #avg = d.agg(sum("trip_col"))
+    avg = d.agg(psf.sum("trip_distance")).collect()[0][0] / d.agg(psf.sum("time_lpep")).collect()[0][0]
+    #avg = 0
     return avg
 
 
