@@ -39,7 +39,7 @@ def operations_df(
         Dataframe with preparing data.
     """
     df = get_data_s3(spark_session=spark_session, bucket=bucket)
-    df = df.select(pickup_col, dropoff_col, trip_col, time_lpep)
+    df = df.select(pickup_col, dropoff_col, trip_col)
 
     #df.withColumn(pickup_col, df[pickup_col].cast(TimestampType()))
     #df.withColumn(dropoff_col, df[dropoff_col].cast(TimestampType()))
@@ -48,7 +48,7 @@ def operations_df(
     df = df.withColumn("lpep_dropoff_datetime", to_timestamp("lpep_dropoff_datetime", "d/M/y H:m:s"))
 
     #df = df.withColumn("time_lpep", (df[dropoff_col] - df[pickup_col]) / 3600)
-    time_subtract = df.withColumn("time_lpep", unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime") / 3600)
+    df = df.withColumn("time_lpep", unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime") / 3600)
     #df.withColumn("time_lpep", unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime") / 3600)
 
     df = df.withColumn("speed", df[trip_col] / df["time_lpep"])
