@@ -1,14 +1,10 @@
 """
 Test program to load data from Bucket S3 and get the average speed of the month.
 """
-#import pandas as pd
-#from matplotlib import pyplot as plt
+import pandas as pd
+from matplotlib import pyplot as plt
 from pyspark.sql import SparkSession
-from pyspark.sql.types import TimestampType
-from pyspark.sql.functions import to_timestamp
-from pyspark.sql.functions import unix_timestamp
-import pyspark.sql as sql
-import pyspark.sql.functions as psf
+from pyspark.sql.functions import to_timestamp, unix_timestamp, psf
 from pyspark.sql.types import DoubleType
 
 
@@ -31,7 +27,7 @@ def operations_df(
     pickup_col: str,
     dropoff_col: str,
     trip_col: str,
-    #time_lpep: str,
+    # time_lpep: str,
 ):
     """Preparing dataframe to get average speed of the month.
 
@@ -47,17 +43,23 @@ def operations_df(
     df = get_data_s3(spark_session=spark_session, bucket=bucket)
     df = df.select(pickup_col, dropoff_col, trip_col)
 
-    #df.withColumn(pickup_col, df[pickup_col].cast(TimestampType()))
-    #df.withColumn(dropoff_col, df[dropoff_col].cast(TimestampType()))
+    df = df.withColumn(
+        "lpep_pickup_datetime",
+        to_timestamp("lpep_pickup_datetime", "yyyy-MM-dd HH:mm:ss"),
+    )
+    df = df.withColumn(
+        "lpep_dropoff_datetime",
+        to_timestamp("lpep_dropoff_datetime", "yyyy-MM-dd HH:mm:ss"),
+    )
 
-    df = df.withColumn("lpep_pickup_datetime", to_timestamp("lpep_pickup_datetime", "yyyy-MM-dd HH:mm:ss"))
-    df = df.withColumn("lpep_dropoff_datetime", to_timestamp("lpep_dropoff_datetime", "yyyy-MM-dd HH:mm:ss"))
-
-    #df = df.withColumn("time_lpep", (df[dropoff_col] - df[pickup_col]) / 3600)
-    df = df.withColumn("time_lpep", (unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime")) / 3600)
-    #df.withColumn("time_lpep", unix_timestamp("lpep_dropoff_datetime") - unix_timestamp("lpep_pickup_datetime") / 3600)
-
-    #df = df.withColumn("trip_col", df[trip_col].cast(sql.types.FloatType))
+    df = df.withColumn(
+        "time_lpep",
+        (
+            unix_timestamp("lpep_dropoff_datetime")
+            - unix_timestamp("lpep_pickup_datetime")
+        )
+        / 3600,
+    )
 
     df = df.withColumn(trip_col, df[trip_col].cast(DoubleType()))
 
@@ -72,7 +74,6 @@ def average_speed(
     pickup_col: str,
     dropoff_col: str,
     trip_col: str,
-    #time_lpep: str,
 ):
     """Get average speed of the month.
 
@@ -91,31 +92,32 @@ def average_speed(
         pickup_col=pickup_col,
         dropoff_col=dropoff_col,
         trip_col=trip_col,
-        #time_lpep=time_lpep,
     )
 
     d.show()
     d.printSchema()
 
-    #avg = d.agg({trip_col: "sum"}) / d.agg({"time_lpep": "sum"})
-    #avg = d.agg(sum("trip_col").cast("long")).first.getLong(0) / d.agg(sum("time_lpep").cast("long")).first.getLong(0)
-    #avg = d.agg(sum("speed"))
-    #avg = d.agg(sum("time_lpep").cast("long")).first.getLong(0)
-    #avg = d.agg(sum("trip_col"))
-    avg = d.agg(psf.sum("trip_distance")).collect()[0][0] / d.agg(psf.sum("time_lpep")).collect()[0][0]
-    #avg = 0
+    avg = (
+        d.agg(psf.sum("trip_distance")).collect()[0][0]
+        / d.agg(psf.sum("time_lpep")).collect()[0][0]
+    )
     return avg
 
 
-#def plot(speed: list) -> None:
-#    """Plot the graph with average speed.
-#
-#    Args:
-#        speed: list of the average speed to plot
-#    """
-#    dates = pd.date_range("2019-05", "2020-05", freq="M").tolist()
-#    plt.plot(speed, dates)
-#    plt.show()
+def plot(green: list, yellow: list) -> None:
+    """Plot the graph with average speed.
+
+    Args:
+        green: list of the average green taxi speed to plot
+        yellow: list of the average yellow taxi speed to plot
+    """
+    dates = pd.date_range("2019-05", "2020-06", freq="M").strftime("%Y-%b").tolist()
+    plt.plot(dates, green, label="Green taxi")
+    plt.plot(dates, yellow, label="Yellow taxi")
+    plt.xlabel("Dates")
+    plt.ylabel("Average speed")
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -128,7 +130,6 @@ if __name__ == "__main__":
         "Python Spark SQL basic example"
     ).getOrCreate()
 
-#    for num in range(6, 13, 1):
     for num in range(6, 10, 1):
         speed_green.append(
             average_speed(
@@ -137,18 +138,17 @@ if __name__ == "__main__":
                 pickup_col="lpep_pickup_datetime",
                 dropoff_col="lpep_dropoff_datetime",
                 trip_col="trip_distance",
-                #time_lpep="time_lpep",
             )
         )
-        #speed_yellow.append(
-        #    average_speed(
-        #        spark_session=session,
-        #        bucket=f"{BUCKET}yellow_tripdata_2019-0{num}.csv",
-        #        pickup_col="tpep_pickup_datetime",
-        #        dropoff_col="tpep_dropoff_datetime",
-        #        trip_col="trip_distance",
-        #    )
-        #)
+        speed_yellow.append(
+            average_speed(
+                spark_session=session,
+                bucket=f"{BUCKET}yellow_tripdata_2019-0{num}.csv",
+                pickup_col="tpep_pickup_datetime",
+                dropoff_col="tpep_dropoff_datetime",
+                trip_col="trip_distance",
+            )
+        )
 
     for num in range(1, 7, 1):
         speed_green.append(
@@ -158,21 +158,19 @@ if __name__ == "__main__":
                 pickup_col="lpep_pickup_datetime",
                 dropoff_col="lpep_dropoff_datetime",
                 trip_col="trip_distance",
-                #time_lpep="time_lpep",
             )
         )
-        #speed_yellow.append(
-        #    average_speed(
-        #        spark_session=session,
-        #        bucket=f"{BUCKET}yellow_tripdata_2020-0{num}.csv",
-        #        pickup_col="tpep_pickup_datetime",
-        #        dropoff_col="tpep_dropoff_datetime",
-        #        trip_col="trip_distance",
-        #    )
-        #)
-    print("#")
-    print("wynik:")
-    print("#")
-    print(speed_green)
+        speed_yellow.append(
+            average_speed(
+                spark_session=session,
+                bucket=f"{BUCKET}yellow_tripdata_2020-0{num}.csv",
+                pickup_col="tpep_pickup_datetime",
+                dropoff_col="tpep_dropoff_datetime",
+                trip_col="trip_distance",
+            )
+        )
 
-    #print(speed_yellow)
+    print("średnia prędkość dla taksówek zielonych: ", speed_green)
+    print("średnia prędkość dla taksówek żółtych: ", speed_yellow)
+
+    plot(green=speed_green, yellow=speed_yellow)
