@@ -1,8 +1,11 @@
 """
 Test program to load data from Bucket S3 and get the average speed of the month.
 """
-#import pandas as pd
-#from matplotlib import pyplot as plt
+
+from matplotlib import pyplot as plt
+import io
+import boto3
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import to_timestamp, unix_timestamp
 from pyspark.sql.types import DoubleType
@@ -127,13 +130,19 @@ def plot(green: list, yellow: list) -> None:
     dates.append("2020-04")
     dates.append("2020-05")
 
-    #pd.date_range("2019-05", "2020-06", freq="M").strftime("%Y-%b").tolist()
-    #plt.plot(dates, green, label="Green taxi")
-    #plt.plot(dates, yellow, label="Yellow taxi")
-    #plt.xlabel("Dates")
-    #plt.ylabel("Average speed")
-    #plt.legend()
-    #plt.show()
+    plt.plot(dates, green, label="Green taxi")
+    plt.plot(dates, yellow, label="Yellow taxi")
+    plt.xlabel("Dates")
+    plt.ylabel("Average speed")
+    plt.legend()
+
+    img_data = io.BytesIO()
+    plt.savefig(img_data, format='png')
+    img_data.seek(0)
+
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket("daneaseied")
+    bucket.put_object(Body=img_data, ContentType='image/png', Key='ASIARCYXEJIVFIY4JV4P')
 
 
 if __name__ == "__main__":
