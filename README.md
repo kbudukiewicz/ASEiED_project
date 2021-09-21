@@ -6,7 +6,7 @@
 
 # INSTALATION
 
-*Python 3.7
+* Python 3.7
 ```
 pip3 install -r requirements.txt
 ```
