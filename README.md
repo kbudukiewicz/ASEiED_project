@@ -6,14 +6,17 @@
 
 # INSTALATION
 
-### Python 3.7
-### pip3 install -r requirements.txt
+#### *Python 3.7
 
+#### '''pip3 install -r requirements.txt'''
+#### Buckets: 
+#### * https://s3.console.aws.amazon.com/s3/buckets/nyc-tlc?region=us-east-1&tab=objects
+#### * https://s3.console.aws.amazon.com/s3/buckets/daneaseied?region=us-east-1&tab=objects
 
 # RUN SCRIPT
 
-### test_pandas.py -> python test_pandas.py
-### test_spark.py -> spark-submit test_spark.py
+#### test_pandas.py -> '''python test_pandas.py'''
+#### test_spark.py -> '''spark-submit test_spark.py'''
 
 # SCORE
 
