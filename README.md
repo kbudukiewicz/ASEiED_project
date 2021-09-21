@@ -6,7 +6,7 @@
 
 # INSTALATION
 
-#### *Python 3.7
+*Python 3.7
 ```
 pip3 install -r requirements.txt
 ```
@@ -16,8 +16,8 @@ pip3 install -r requirements.txt
 
 # RUN SCRIPT
 
-#### test_pandas.py -> '''python test_pandas.py'''
-#### test_spark.py -> '''spark-submit test_spark.py'''
+#### test_pandas.py -> ```python test_pandas.py```
+#### test_spark.py -> ```spark-submit test_spark.py```
 
 # SCORE
 
