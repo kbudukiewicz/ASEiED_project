@@ -9,4 +9,4 @@
 # RUN SCRIPT
 
 ## test_pandas.py -> python test_pandas.py
-## test_spark.py ->
+## test_spark.py -> spark-submit test_spark.py

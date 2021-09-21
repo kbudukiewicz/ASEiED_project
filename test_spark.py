@@ -1,11 +1,12 @@
 """
 Test program to load data from Bucket S3 and get the average speed of the month.
 """
-import pandas as pd
-from matplotlib import pyplot as plt
+#import pandas as pd
+#from matplotlib import pyplot as plt
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import to_timestamp, unix_timestamp, psf
+from pyspark.sql.functions import to_timestamp, unix_timestamp
 from pyspark.sql.types import DoubleType
+import pyspark.sql.functions as psf
 
 
 def get_data_s3(spark_session: SparkSession, bucket: str):
@@ -44,19 +45,19 @@ def operations_df(
     df = df.select(pickup_col, dropoff_col, trip_col)
 
     df = df.withColumn(
-        "lpep_pickup_datetime",
-        to_timestamp("lpep_pickup_datetime", "yyyy-MM-dd HH:mm:ss"),
+        pickup_col,
+        to_timestamp(pickup_col, "yyyy-MM-dd HH:mm:ss"),
     )
     df = df.withColumn(
-        "lpep_dropoff_datetime",
-        to_timestamp("lpep_dropoff_datetime", "yyyy-MM-dd HH:mm:ss"),
+        dropoff_col,
+        to_timestamp(dropoff_col, "yyyy-MM-dd HH:mm:ss"),
     )
 
     df = df.withColumn(
         "time_lpep",
         (
-            unix_timestamp("lpep_dropoff_datetime")
-            - unix_timestamp("lpep_pickup_datetime")
+            unix_timestamp(dropoff_col)
+            - unix_timestamp(pickup_col)
         )
         / 3600,
     )
@@ -111,13 +112,28 @@ def plot(green: list, yellow: list) -> None:
         green: list of the average green taxi speed to plot
         yellow: list of the average yellow taxi speed to plot
     """
-    dates = pd.date_range("2019-05", "2020-06", freq="M").strftime("%Y-%b").tolist()
-    plt.plot(dates, green, label="Green taxi")
-    plt.plot(dates, yellow, label="Yellow taxi")
-    plt.xlabel("Dates")
-    plt.ylabel("Average speed")
-    plt.legend()
-    plt.show()
+    dates = list()
+    dates.append("2019-05")
+    dates.append("2019-06")
+    dates.append("2019-07")
+    dates.append("2019-08")
+    dates.append("2019-09")
+    dates.append("2019-10")
+    dates.append("2019-11")
+    dates.append("2019-12")
+    dates.append("2020-01")
+    dates.append("2020-02")
+    dates.append("2020-03")
+    dates.append("2020-04")
+    dates.append("2020-05")
+
+    #pd.date_range("2019-05", "2020-06", freq="M").strftime("%Y-%b").tolist()
+    #plt.plot(dates, green, label="Green taxi")
+    #plt.plot(dates, yellow, label="Yellow taxi")
+    #plt.xlabel("Dates")
+    #plt.ylabel("Average speed")
+    #plt.legend()
+    #plt.show()
 
 
 if __name__ == "__main__":
@@ -130,7 +146,7 @@ if __name__ == "__main__":
         "Python Spark SQL basic example"
     ).getOrCreate()
 
-    for num in range(6, 10, 1):
+    for num in range(5, 10, 1):
         speed_green.append(
             average_speed(
                 spark_session=session,
@@ -150,7 +166,27 @@ if __name__ == "__main__":
             )
         )
 
-    for num in range(1, 7, 1):
+    for num in range(10, 13, 1):
+        speed_green.append(
+            average_speed(
+                spark_session=session,
+                bucket=f"{BUCKET}green_tripdata_2019-{num}.csv",
+                pickup_col="lpep_pickup_datetime",
+                dropoff_col="lpep_dropoff_datetime",
+                trip_col="trip_distance",
+            )
+        )
+        speed_yellow.append(
+            average_speed(
+                spark_session=session,
+                bucket=f"{BUCKET}yellow_tripdata_2019-{num}.csv",
+                pickup_col="tpep_pickup_datetime",
+                dropoff_col="tpep_dropoff_datetime",
+                trip_col="trip_distance",
+            )
+        )
+
+    for num in range(1, 6, 1):
         speed_green.append(
             average_speed(
                 spark_session=session,
