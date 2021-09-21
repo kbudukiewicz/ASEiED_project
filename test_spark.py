@@ -116,24 +116,25 @@ def plot(green: list, yellow: list) -> None:
         yellow: list of the average yellow taxi speed to plot
     """
     dates = list()
-    dates.append("2019-05")
-    dates.append("2019-06")
-    dates.append("2019-07")
-    dates.append("2019-08")
-    dates.append("2019-09")
-    dates.append("2019-10")
-    dates.append("2019-11")
-    dates.append("2019-12")
-    dates.append("2020-01")
-    dates.append("2020-02")
-    dates.append("2020-03")
-    dates.append("2020-04")
-    dates.append("2020-05")
+    dates.append("05.19")
+    dates.append("06.19")
+    dates.append("07.19")
+    dates.append("08.19")
+    dates.append("09.19")
+    dates.append("10.19")
+    dates.append("11.19")
+    dates.append("12.19")
+    dates.append("01.20")
+    dates.append("02.20")
+    dates.append("03.20")
+    dates.append("04.20")
+    dates.append("05.20")
 
-    plt.plot(dates, green, label="Green taxi")
-    plt.plot(dates, yellow, label="Yellow taxi")
+    fig = plt.figure(figsize=(12, 6))
+    plt.plot(dates, green, label="Green taxi", color='g')
+    plt.plot(dates, yellow, label="Yellow taxi", color='y')
     plt.xlabel("Dates")
-    plt.ylabel("Average speed")
+    plt.ylabel("Average speed [mph]")
     plt.legend()
 
     img_data = io.BytesIO()
@@ -142,7 +143,7 @@ def plot(green: list, yellow: list) -> None:
 
     s3 = boto3.resource('s3')
     bucket = s3.Bucket("daneaseied")
-    bucket.put_object(Body=img_data, ContentType='image/png', Key='ASIARCYXEJIVFIY4JV4P')
+    bucket.put_object(Body=img_data, ContentType='image/png', Key='Wykres_dane_wyjsciowe')
 
 
 if __name__ == "__main__":
