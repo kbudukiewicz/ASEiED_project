@@ -31,7 +31,6 @@ def operations_df(
     pickup_col: str,
     dropoff_col: str,
     trip_col: str,
-    # time_lpep: str,
 ):
     """Preparing dataframe to get average speed of the month.
 
